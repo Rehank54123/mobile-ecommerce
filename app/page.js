@@ -31,7 +31,7 @@ export default function Home() {
     description: 'Scopri il nostro catalogo dedicato a professionisti e privati. Prezzi competitivi, spedizioni rapide e qualità garantita.',
     button_text: 'Esplora Catalogo',
     button_link: '/products',
-    image_url: 'https://placehold.co/400x400/e9ecef/6c757d?text=Hero+Image'
+    image_url: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=600&auto=format&fit=crop'
   };
 
   return (

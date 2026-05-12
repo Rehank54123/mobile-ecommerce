@@ -1,11 +1,30 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function LanguageSwitcher() {
   const [lang, setLang] = useState('it');
 
+  useEffect(() => {
+    // Check if google translate is already active by checking cookies
+    if (document.cookie.indexOf('googtrans=/it/en') !== -1) {
+      setLang('en');
+    }
+  }, []);
+
   const toggleLanguage = () => {
-    setLang(prev => prev === 'it' ? 'en' : 'it');
+    const newLang = lang === 'it' ? 'en' : 'it';
+    setLang(newLang);
+    
+    // Trigger Google Translate hidden combo box
+    const combo = document.querySelector('.goog-te-combo');
+    if (combo) {
+      combo.value = newLang;
+      combo.dispatchEvent(new Event('change'));
+    } else {
+      // Fallback if widget hasn't fully loaded, try redirecting with hash
+      window.location.hash = '#googtrans(it|' + newLang + ')';
+      window.location.reload();
+    }
   };
 
   return (
