@@ -30,8 +30,6 @@ export default function AdminLayout({ children }) {
             <Link href="/admin" style={{ padding: '0.8rem 1rem', borderRadius: '6px', background: pathname === '/admin' ? '#334155' : 'transparent', color: pathname === '/admin' ? '#fff' : '#cbd5e1' }}>Dashboard</Link>
             <Link href="/admin/inventory" style={{ padding: '0.8rem 1rem', borderRadius: '6px', background: pathname === '/admin/inventory' ? '#334155' : 'transparent', color: pathname === '/admin/inventory' ? '#fff' : '#cbd5e1' }}>Gestione Catalogo</Link>
             <Link href="/admin/offers" style={{ padding: '0.8rem 1rem', borderRadius: '6px', background: pathname === '/admin/offers' ? '#334155' : 'transparent', color: pathname === '/admin/offers' ? '#fff' : '#cbd5e1' }}>Offerte Speciali</Link>
-            <Link href="/admin/orders" style={{ padding: '0.8rem 1rem', borderRadius: '6px', color: '#cbd5e1' }}>Ordini (Mock)</Link>
-            <Link href="/admin/customers" style={{ padding: '0.8rem 1rem', borderRadius: '6px', color: '#cbd5e1' }}>Clienti B2B (Mock)</Link>
           </nav>
 
           <div style={{ padding: '1rem', borderTop: '1px solid #334155' }}>
