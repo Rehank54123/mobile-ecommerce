@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, use } from 'react';
-import { supabase } from '../../../lib/supabaseClient';
+import { getProduct } from '../../actions';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { useCart } from '../../../lib/CartContext';
@@ -14,8 +14,8 @@ export default function ProductDetails({ params }) {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
-        if (error) throw error;
+        const { data, error } = await getProduct(id);
+        if (error) throw new Error(error);
         setProduct(data);
       } catch (error) {
         console.error('Error fetching product:', error.message);

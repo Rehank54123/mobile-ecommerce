@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabaseClient';
+import { getOffers, createOffer, updateOffer, deleteOffer, toggleOfferActive } from '../../actions';
 
 export default function OffersPage() {
   const [offers, setOffers] = useState([]);
@@ -10,7 +10,7 @@ export default function OffersPage() {
 
   const fetchOffers = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('special_offers').select('*').order('created_at', { ascending: false });
+    const { data, error } = await getOffers();
     if (error) {
       console.error('Error fetching offers:', error);
     } else {
@@ -30,14 +30,14 @@ export default function OffersPage() {
 
   const handleDelete = async (id) => {
     if (window.confirm("Sei sicuro di voler eliminare questa offerta?")) {
-      const { error } = await supabase.from('special_offers').delete().eq('id', id);
+      const { error } = await deleteOffer(id);
       if (error) console.error("Error deleting:", error);
       else fetchOffers();
     }
   };
 
   const handleToggleActive = async (offer) => {
-    const { error } = await supabase.from('special_offers').update({ active: !offer.active }).eq('id', offer.id);
+    const { error } = await toggleOfferActive(offer.id, !offer.active);
     if (error) console.error("Error toggling active:", error);
     else fetchOffers();
   };
@@ -46,11 +46,11 @@ export default function OffersPage() {
     e.preventDefault();
     if (currentOffer.id) {
       const { id, ...updateData } = currentOffer;
-      const { error } = await supabase.from('special_offers').update(updateData).eq('id', id);
+      const { error } = await updateOffer(id, updateData);
       if (error) console.error("Error updating:", error);
     } else {
       const { id, created_at, ...insertData } = currentOffer;
-      const { error } = await supabase.from('special_offers').insert([insertData]);
+      const { error } = await createOffer(insertData);
       if (error) console.error("Error inserting:", error);
     }
     setIsEditing(false);

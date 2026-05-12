@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { supabase } from '../../lib/supabaseClient';
+import { getProducts } from '../actions';
 import { useCart } from '../../lib/CartContext';
 
 export default function ProductsPage() {
@@ -14,8 +14,8 @@ export default function ProductsPage() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const { data, error } = await supabase.from('products').select('*');
-        if (error) throw error;
+        const { data, error } = await getProducts();
+        if (error) throw new Error(error);
         setProducts(data || []);
       } catch (error) {
         console.error('Error fetching products:', error.message);
@@ -97,7 +97,7 @@ export default function ProductsPage() {
                     <Link href={`/products/${product.id}`} className="btn-secondary" style={{ flex: 1, textAlign: 'center', fontSize: '0.9rem', padding: '0.8rem' }}>
                       Dettagli
                     </Link>
-                    <button onClick={() => addToCart(product)} className="btn-primary" style={{ flex: 1, fontSize: '0.9rem', padding: '0.8rem' }}>
+                    <button onClick={() => addToCart(product)} className="btn-primary" style={{ flex: 1, fontSize: '0.9rem', padding: '0.8rem', cursor: 'pointer', border: 'none' }}>
                       Aggiungi
                     </button>
                   </div>

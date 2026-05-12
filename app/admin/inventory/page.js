@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabaseClient';
+import { getProducts, createProduct, updateProduct, deleteProduct } from '../../actions';
 
 export default function InventoryPage() {
   const [products, setProducts] = useState([]);
@@ -10,7 +10,7 @@ export default function InventoryPage() {
 
   const fetchProducts = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+    const { data, error } = await getProducts();
     if (error) {
       console.error('Error fetching products:', error);
     } else {
@@ -30,7 +30,7 @@ export default function InventoryPage() {
 
   const handleDelete = async (id) => {
     if (window.confirm("Sei sicuro di voler eliminare questo prodotto?")) {
-      const { error } = await supabase.from('products').delete().eq('id', id);
+      const { error } = await deleteProduct(id);
       if (error) console.error("Error deleting:", error);
       else fetchProducts();
     }
@@ -39,12 +39,14 @@ export default function InventoryPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (currentProduct.id) {
+      // Update
       const { id, ...updateData } = currentProduct;
-      const { error } = await supabase.from('products').update(updateData).eq('id', id);
+      const { error } = await updateProduct(id, updateData);
       if (error) console.error("Error updating:", error);
     } else {
+      // Insert
       const { id, created_at, ...insertData } = currentProduct;
-      const { error } = await supabase.from('products').insert([insertData]);
+      const { error } = await createProduct(insertData);
       if (error) console.error("Error inserting:", error);
     }
     setIsEditing(false);
@@ -61,7 +63,7 @@ export default function InventoryPage() {
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2rem', color: '#1e293b' }}>Gestione Catalogo</h1>
-        <button onClick={handleAdd} className="btn-primary" style={{ padding: '0.8rem 1.5rem', background: '#0284c7' }}>+ Aggiungi Prodotto</button>
+        <button onClick={handleAdd} className="btn-primary" style={{ padding: '0.8rem 1.5rem' }}>+ Aggiungi Prodotto</button>
       </div>
 
       {isEditing && (
@@ -70,12 +72,12 @@ export default function InventoryPage() {
           <form onSubmit={handleSave} style={{ display: 'grid', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Nome Prodotto</label>
-              <input required className="input-field" value={currentProduct.name} onChange={e => setCurrentProduct({...currentProduct, name: e.target.value})} />
+              <input required className="input-field" value={currentProduct.name || ''} onChange={e => setCurrentProduct({...currentProduct, name: e.target.value})} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Categoria</label>
-                <select className="input-field" value={currentProduct.category} onChange={e => setCurrentProduct({...currentProduct, category: e.target.value})}>
+                <select className="input-field" value={currentProduct.category || 'telefonia'} onChange={e => setCurrentProduct({...currentProduct, category: e.target.value})}>
                   <option value="telefonia">Telefonia</option>
                   <option value="ricambi">Ricambi</option>
                   <option value="accessori">Accessori</option>
@@ -84,7 +86,7 @@ export default function InventoryPage() {
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>Prezzo (€)</label>
-                <input type="number" step="0.01" required className="input-field" value={currentProduct.price} onChange={e => setCurrentProduct({...currentProduct, price: parseFloat(e.target.value)})} />
+                <input required type="number" step="0.01" className="input-field" value={currentProduct.price || ''} onChange={e => setCurrentProduct({...currentProduct, price: parseFloat(e.target.value)})} />
               </div>
             </div>
             <div>
@@ -93,7 +95,7 @@ export default function InventoryPage() {
             </div>
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#334155' }}>URL Immagine</label>
-              <input className="input-field" value={currentProduct.image || ''} onChange={e => setCurrentProduct({...currentProduct, image: e.target.value})} />
+              <input required className="input-field" value={currentProduct.image || ''} onChange={e => setCurrentProduct({...currentProduct, image: e.target.value})} />
             </div>
             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               <button type="submit" className="btn-primary" style={{ background: '#10b981' }}>Salva Prodotto</button>
@@ -104,11 +106,11 @@ export default function InventoryPage() {
       )}
 
       {loading ? (
-        <p>Caricamento prodotti...</p>
+        <p>Caricamento catalogo...</p>
       ) : (
         <div style={{ background: '#fff', borderRadius: '8px', boxShadow: 'var(--shadow-sm)', overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead style={{ background: '#f1f5f9' }}>
+            <thead style={{ background: '#f8fafc' }}>
               <tr>
                 <th style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>Prodotto</th>
                 <th style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0', color: '#475569' }}>Categoria</th>
@@ -118,12 +120,12 @@ export default function InventoryPage() {
             </thead>
             <tbody>
               {products.map(product => (
-                <tr key={product.id} style={{ borderBottom: '1px solid #e2e8f0', transition: 'background 0.2s' }}>
+                <tr key={product.id} style={{ borderBottom: '1px solid #e2e8f0', transition: 'background 0.2s' }} className="table-row-hover">
                   <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <img src={product.image} alt={product.name} style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
-                    <span style={{ fontWeight: '500', color: '#1e293b' }}>{product.name}</span>
+                    <img src={product.image} alt={product.name} style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
+                    <span style={{ fontWeight: 'bold', color: '#1e293b' }}>{product.name}</span>
                   </td>
-                  <td style={{ padding: '1rem', textTransform: 'capitalize', color: '#64748b' }}>{product.category}</td>
+                  <td style={{ padding: '1rem', color: '#64748b', textTransform: 'capitalize' }}>{product.category}</td>
                   <td style={{ padding: '1rem', fontWeight: 'bold', color: '#0f172a' }}>€{Number(product.price).toFixed(2)}</td>
                   <td style={{ padding: '1rem', textAlign: 'right' }}>
                     <button onClick={() => handleEdit(product)} style={{ color: '#0284c7', marginRight: '1rem', fontWeight: 'bold', cursor: 'pointer', background: 'transparent', border: 'none' }}>Modifica</button>

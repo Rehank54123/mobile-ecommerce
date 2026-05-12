@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { supabase } from '../lib/supabaseClient';
+import { getActiveOffers } from './actions';
 
 export default function Home() {
   const [offers, setOffers] = useState([]);
@@ -9,7 +9,7 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchOffers() {
-      const { data, error } = await supabase.from('special_offers').select('*').eq('active', true).order('created_at', { ascending: false });
+      const { data, error } = await getActiveOffers();
       if (!error && data) {
         setOffers(data);
       }
