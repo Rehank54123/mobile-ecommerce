@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { initializeDatabase, getProducts } from '../../actions';
+import { initializeDatabase, getProducts } from '../actions';
 
 export default function AdminDashboard() {
   const [dbStatus, setDbStatus] = useState('checking');
